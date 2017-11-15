@@ -1,0 +1,562 @@
+<!-- START SIGMA IMPORTS -->
+<script src="./src/sigma.core.js"></script>
+<script src="./src/conrad.js"></script>
+<script src="./src/utils/sigma.utils.js"></script>
+<script src="./src/utils/sigma.polyfills.js"></script>
+<script src="./src/sigma.settings.js"></script>
+<script src="./src/classes/sigma.classes.dispatcher.js"></script>
+<script src="./src/classes/sigma.classes.configurable.js"></script>
+<script src="./src/classes/sigma.classes.graph.js"></script>
+<script src="./src/classes/sigma.classes.camera.js"></script>
+<script src="./src/classes/sigma.classes.quad.js"></script>
+<script src="./src/classes/sigma.classes.edgequad.js"></script>
+<script src="./src/captors/sigma.captors.mouse.js"></script>
+<script src="./src/captors/sigma.captors.touch.js"></script>
+<script src="./src/renderers/sigma.renderers.canvas.js"></script>
+<script src="./src/renderers/sigma.renderers.webgl.js"></script>
+<script src="./src/renderers/sigma.renderers.svg.js"></script>
+<script src="./src/renderers/sigma.renderers.def.js"></script>
+<script src="./src/renderers/webgl/sigma.webgl.nodes.def.js"></script>
+<script src="./src/renderers/webgl/sigma.webgl.nodes.fast.js"></script>
+<script src="./src/renderers/webgl/sigma.webgl.edges.def.js"></script>
+<script src="./src/renderers/webgl/sigma.webgl.edges.fast.js"></script>
+<script src="./src/renderers/webgl/sigma.webgl.edges.arrow.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.labels.def.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.hovers.def.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.nodes.def.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edges.def.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edges.curve.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edges.arrow.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edges.curvedArrow.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edgehovers.def.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edgehovers.curve.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edgehovers.arrow.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.edgehovers.curvedArrow.js"></script>
+<script src="./src/renderers/canvas/sigma.canvas.extremities.def.js"></script>
+<script src="./src/renderers/svg/sigma.svg.utils.js"></script>
+<script src="./src/renderers/svg/sigma.svg.nodes.def.js"></script>
+<script src="./src/renderers/svg/sigma.svg.edges.def.js"></script>
+<script src="./src/renderers/svg/sigma.svg.edges.curve.js"></script>
+<script src="./src/renderers/svg/sigma.svg.labels.def.js"></script>
+<script src="./src/renderers/svg/sigma.svg.hovers.def.js"></script>
+<script src="./src/middlewares/sigma.middlewares.rescale.js"></script>
+<script src="./src/middlewares/sigma.middlewares.copy.js"></script>
+<script src="./src/misc/sigma.misc.animation.js"></script>
+<script src="./src/misc/sigma.misc.bindEvents.js"></script>
+<script src="./src/misc/sigma.misc.bindDOMEvents.js"></script>
+<script src="./src/misc/sigma.misc.drawHovers.js"></script>
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<!-- END SIGMA IMPORTS -->
+
+<script src="./plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
+
+<div id="container">
+    <div id="nodeTableHolder">
+        <input type="text" id="nodeName"/><span id="addNode">Add Node</span>
+        <table id="nodeTable">
+
+        </table>
+
+
+    </div>
+    <div>
+        <label>Enter Nodes:</label>
+        <input type="text" id="nodes"/><br/>
+
+        <label>Enter Edges:</label>
+        <input type="text" id="edges"/>
+
+
+
+    </div>
+  <style>
+    #graph-container {
+      top: 0;
+      bottom: 0;
+      left: 600;
+      right: 0;
+      border-color: red;
+      position: absolute;
+    }
+
+    .cellSelected{
+        background-color: red;
+    }
+
+    .cellDeselected{
+        background-color: green;
+    }
+
+
+
+    td{
+        height:20px;
+        width:20px;
+        text-align: center;
+    }
+
+    .cellInvalid{
+        background-color: grey;
+        width:100px;
+    }
+
+
+  </style>
+  <div id="graph-container"></div>
+</div>
+
+<script>
+
+
+
+
+//var i,
+//    s,
+//    N = 100,
+//    E = 500,
+//    g = {
+//      nodes: [],
+//      edges: []
+//    };
+//
+//// Generate a random graph:
+//for (i = 0; i < N; i++)
+//  g.nodes.push({
+//    id: 'n' + i,
+//    label: 'Node ' + i,
+//    x: Math.random(),
+//    y: Math.random(),
+//    size: Math.random(),
+//    color: 'rgb(59, 148, 217)'
+//  });
+//
+//for (i = 0; i < E; i++)
+//  g.edges.push({
+//    id: 'e' + i,
+//    source: 'n' + (Math.random() * N | 0),
+//    target: 'n' + (Math.random() * N | 0),
+//    size: Math.random(),
+//    color: 'rgb(253, 170, 12)'
+//  });
+
+
+
+//updateGraph();
+
+
+//
+//sigma.parsers.gexf(
+//        'path/to/les-miserables.gexf',
+//        {
+//            container: 'sigma-container'
+//        },
+//        function(s) {
+//            // We first need to save the original colors of our
+//            // nodes and edges, like this:
+//            s.graph.nodes().forEach(function(n) {
+//                n.originalColor = n.color;
+//            });
+//            s.graph.edges().forEach(function(e) {
+//                e.originalColor = e.color;
+//            });
+//
+//            // When a node is clicked, we check for each node
+//            // if it is a neighbor of the clicked one. If not,
+//            // we set its color as grey, and else, it takes its
+//            // original color.
+//            // We do the same for the edges, and we only keep
+//            // edges that have both extremities colored.
+//            s.bind('clickNode', function(e) {
+//                var nodeId = e.data.node.id,
+//                        toKeep = s.graph.neighbors(nodeId);
+//                toKeep[nodeId] = e.data.node;
+//
+//                s.graph.nodes().forEach(function(n) {
+//                    if (toKeep[n.id])
+//                        n.color = n.originalColor;
+//                    else
+//                        n.color = '#eee';
+//                });
+//
+//                s.graph.edges().forEach(function(e) {
+//                    if (toKeep[e.source] && toKeep[e.target])
+//                        e.color = e.originalColor;
+//                    else
+//                        e.color = '#eee';
+//                });
+//
+//                // Since the data has been modified, we need to
+//                // call the refresh method to make the colors
+//                // update effective.
+//                s.refresh();
+//            });
+//
+//            // When the stage is clicked, we just color each
+//            // node and edge with its original color.
+//            s.bind('clickStage', function(e) {
+//                s.graph.nodes().forEach(function(n) {
+//                    n.color = n.originalColor;
+//                });
+//
+//                s.graph.edges().forEach(function(e) {
+//                    e.color = e.originalColor;
+//                });
+//
+//                // Same as in the previous event:
+//                s.refresh();
+//            });
+//        }
+//);
+
+var runCounter = 0;
+var nodeCounter = 0;
+
+$(document).ready(function() {
+    initPage();
+});
+
+// Add a method to the graph model that returns an
+// object with every neighbors of a node inside:
+sigma.classes.graph.addMethod('neighbors', function(nodeId) {
+    var k,
+            neighbors = {},
+            index = this.allNeighborsIndex[nodeId] || {};
+
+    for (k in index)
+        neighbors[k] = this.nodesIndex[k];
+
+    return neighbors;
+});
+
+function initPage(){
+    console.log("Initi start");
+    $("#nodes").on("change", function(){
+
+        //if(runCounter==0){
+            updateGraph();
+        //    runCounter++;
+        //}
+
+    });
+
+    $("#edges").on("change", function(){
+
+        updateGraph();
+    });
+
+    $("#addNode").on("click", function(){
+       // add a new row to the table
+       // and for each row in the table add a new column.
+
+       // we using this to keep track on the name which will basically just be node counter...
+       nodeCounter++;
+        var rowString = "";
+        // first, we need to make a row that we can then insert.
+        for(i = 0; i< nodeCounter-1;i++){
+            rowString = rowString + "<td onclick='clickCell(this)' class='cellDeselected' id='r_"+(nodeCounter-1)+"_"+i+"'>" + i + "</td>"
+        }
+        // to do this, we iterate over nodeCounter 0 to nodeC -1.
+        // for each we add a TD with the corresponding name and events
+        // we then append this to the nodeTable and add the new column in the next process.
+
+        $("#nodeTable").append("<tr><td class='cellInvalid' id='rHead_" + (nodeCounter-1)+"'>"+$("#nodeName").val()+" ("+i+")</td>"+rowString+"</tr>");
+
+        // now, let's add the extra column.
+        // to do this we're going to pull our all the TRs
+        $.each($("tr"), function( index, value ) {
+            $(value).append("<td onclick='clickCell(this)' class='cellDeselected' id='r_"+index+"_"+i+"'>" + i + "</td>");
+            //alert( index + ": " + value );
+        });
+        $("#nodes").val(getNodeString());
+        $("#nodes").trigger("change");
+        //console.log();
+    });
+
+
+    console.log("Initi end")
+
+}
+
+function clickCell(t){
+    console.log($(t));
+    if($(t).hasClass( "cellSelected" )){
+        $(t).attr("class", "cellDeselected")
+    }
+    else
+    {
+        $(t).attr("class", "cellSelected")
+    }
+
+    $("#edges").val(getEdgesString())
+    $("#edges").trigger("change");
+    console.log();
+
+}
+
+function getEdgesString(){
+    // so, edges are a bit more tricky... to do this we're going to need
+    // to work through the table and use the class statuses to direct the construction
+    // of the edges... should be fun!
+
+    // first, we need to get all the tds that havec a class cellSelected
+
+    var edgeString = ""
+
+    $.each($(".cellSelected"), function( index, value ) {
+        // these represent the edges.
+        // for each, get the item, look at it's ID
+        // the first line of the ID represents the node from
+        // the second part of the ID represents the node to
+        // typical format is: r_10_12 (10 is from, 12 is to).
+        var fullID = $(value).attr("id")
+        console.log("Pre-tamper: "+fullID)
+
+        // now, this ID needs a trim... crop off the first two letters...
+        fullID = fullID.substr(2)
+        console.log("Less the first two: "+fullID)
+
+        // now, find the first instance of the underscore and
+        // pull out everything before (from node) and everything after (to node).
+        // we will then need to make this up into the node names as they're made up
+        var underscorePosition = fullID.indexOf("_")
+        var fromNode = fullID.substring(0,underscorePosition)
+        console.log("From node is " + fromNode)
+        var toNode = fullID.substring(underscorePosition+1)
+        console.log("To node is " + toNode)
+
+
+
+        if(index == 0){
+            // it's the first iteration
+            console.log("first!" + fromNode + " to " + toNode + " index: " + index);
+            edgeString = edgeString + '{"id":"E'+index+'", "source":"N'+fromNode+'", "target":"N'+toNode+'"}'
+        }
+        else
+        {
+            // it's every other iteration.
+            // adding the comma...
+            console.log("first!" + fromNode + " to " + toNode + " index: " + index)
+            edgeString = edgeString + ',{"id":"E'+index+'", "source":"N'+fromNode+'", "target":"N'+toNode+'"}'
+            console.log("every other")
+        }
+
+        // in the getNodeString method, using this we then build up the edges string...
+    });
+    return edgeString;
+}
+
+function getNodeString(){
+    // using the total number of nodes as the guide
+    // create a map of nodes with all the correct variables
+    // then return it for usage.
+    var nodeString = ""
+
+    // ok, we're going to plot these bad boys on a clock.
+    // we're assuming clock center of 0,0 and a radius of 10.
+    // we take the 360 degrees available to us and divide it by nodeCounter.
+    // we then multiply i by this to work out the degree and use this to work out the x and y.
+    // simple.
+
+    if(nodeCounter>0){
+        var degreeStep = 360.0/nodeCounter
+
+        for(i = 0; i < nodeCounter; i++){
+
+            var xer = 10 * Math.sin(degreeStep * i);
+            var yer = 10 * Math.cos(degreeStep * i);
+
+            console.log($("#rHead_"+i))
+            var labelString =$("#rHead_"+(i)).text()
+            labelString = labelString.substring(0,labelString.indexOf("("));
+            if(i ==0){
+                console.log("Adding first node string" )
+                nodeString = nodeString + '{"id":"N'+i+'", "label":"'+labelString+'", "x":'+xer+', "y": '+yer+', "size":2, "color":"#00bcf0ff"}'
+            }
+
+            else
+            {
+                // add a comma if it's not hte first one.
+                console.log("Adding nodestring " + i)
+                nodeString = nodeString + ',{"id":"N'+i+'", "label":"'+labelString+'", "x":'+xer+', "y": '+yer+', "size":2, "color":"#00bcf0ff"}'
+            }
+        }
+    }
+    else
+    {
+        returnString = "{}";
+    }
+
+
+    return nodeString
+}
+
+function updateGraph(){
+
+// Nodes
+//{
+//    "id": "n0",
+//        "label": "A node",
+//        "x": 0,
+//        "y": 0,
+//        "size": 3,
+//        "color":"rgb(255, 0, 0)"
+//},
+//{
+//    "id": "n1",
+//        "label": "Another node",
+//        "x": 3,
+//        "y": 1,
+//        "size": 2,
+//        "color":"rgb(0, 255, 0)"
+//},
+//{
+//    "id": "n2",
+//        "label": "And a last one",
+//        "x": 1,
+//        "y": 3,
+//        "size": 1,
+//        "color":"rgb(0, 0, 255)"
+//}
+    // Edges
+//{
+//    "id": "e0",
+//        "source": "n0",
+//        "target": "n1"
+//},
+//{
+//    "id": "e1",
+//        "source": "n1",
+//        "target": "n2"
+//},
+//{
+//    "id": "e2",
+//        "source": "n2",
+//        "target": "n0"
+//}
+
+    console.log("Nodes: " + JSON.stringify( $("#nodes").val()) + "")
+    var nodesObj = JSON.parse('['+$("#nodes").val()+']')
+    console.log(nodesObj)
+    console.log("Edges: " + JSON.stringify( $("#edges").val()) + "")
+    var edgesObj = JSON.parse('['+$("#edges").val()+']')
+    console.log(edgesObj)
+
+    // clear the graph container...
+
+    $("#graph-container").empty();
+
+    g = {
+        "nodes": nodesObj,
+        "edges": edgesObj
+    }
+    console.log(g)
+
+    // Instantiate sigma:
+    s = new sigma({
+        graph: g,
+        container: 'graph-container'
+    });
+
+
+
+// now that we have S...
+// We first need to save the original colors of our
+// nodes and edges, like this:
+    s.graph.nodes().forEach(function(n) {
+        n.originalColor = n.color;
+    });
+    s.graph.edges().forEach(function(e) {
+        e.originalColor = e.color;
+    });
+
+// When a node is clicked, we check for each node
+// if it is a neighbor of the clicked one. If not,
+// we set its color as grey, and else, it takes its
+// original color.
+// We do the same for the edges, and we only keep
+// edges that have both extremities colored.
+    s.bind('rightClickNode', function(e) {
+        console.log("Node clicked yo!");
+        var nodeId = e.data.node.id;
+        console.log("Node ID is" + nodeId)
+        var toKeep = s.graph.neighbors(nodeId);
+        console.log("To keep " + toKeep )
+        //console.log("Data is " + e.data.node)
+
+        toKeep[nodeId] = e.data.node;
+
+        s.graph.nodes().forEach(function(n) {
+            if (toKeep[n.id]){
+                console.log("Setting " + n.id + " to original colour");
+                n.color = "#ffab40ff"
+            }
+
+            else{
+                console.log("Setting " + n.id + " grey");
+                n.color = '#eee';
+            }
+
+        });
+
+        s.graph.edges().forEach(function(e) {
+            if (toKeep[e.source] && toKeep[e.target]){
+                console.log("updating edge from " + e.source + " to " + e.target + " to original colour");
+                e.color = e.originalColor;
+            }
+
+            else
+            {
+                console.log("updating edge from " + e.source + " to " + e.target + " to grey");
+                e.color = '#eee';
+            }
+
+        });
+
+        // Since the data has been modified, we need to
+        // call the refresh method to make the colors
+        // update effective.
+        s.refresh();
+    });
+
+// When the stage is clicked, we just color each
+// node and edge with its original color.
+    s.bind('rightClickStage', function(e) {
+        console.log("Clickstage clicked yo!");
+        s.graph.nodes().forEach(function(n) {
+            n.color = n.originalColor;
+        });
+
+        s.graph.edges().forEach(function(e) {
+            e.color = e.originalColor;
+        });
+
+        // Same as in the previous event:
+        s.refresh();
+    });
+
+    // Initialize the dragNodes plugin:
+    var dragListener = sigma.plugins.dragNodes(s, s.renderers[0]);
+
+    dragListener.bind('startdrag', function(event) {
+        console.log(event);
+    });
+    dragListener.bind('drag', function(event) {
+        console.log(event);
+    });
+    dragListener.bind('drop', function(event) {
+        console.log(event);
+    });
+    dragListener.bind('dragend', function(event) {
+        console.log(event);
+    });
+
+
+    // finally, make it visible
+    $("#graph-container").show();
+}
+</script>
+
+

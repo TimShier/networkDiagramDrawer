@@ -1,0 +1,1 @@
+Quick build to allow for easy network diagram development. Uses sigma.js v.1.2.1.
