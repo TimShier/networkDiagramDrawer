@@ -52,8 +52,9 @@
 <!-- END SIGMA IMPORTS -->
 
 <script src="./plugins/sigma.plugins.dragNodes/sigma.plugins.dragNodes.js"></script>
+<input type="text" onchange="toggleShow()" placeholder="type to toggle"/>
 
-<div id="container">
+<div id="manageContainer">
     <p>
         <ol>
             <li>Add name then click add node</li>
@@ -82,12 +83,14 @@
 
 
     </div>
+</div>
+<div id="canvasHolder" style="display:none;">
   <style>
     #graph-container {
-      top: 0;
-      bottom: 0;
-      left: 600;
-      right: 0;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
       border-color: red;
       position: absolute;
     }
@@ -356,6 +359,13 @@ function getEdgesString(){
         // in the getNodeString method, using this we then build up the edges string...
     });
     return edgeString;
+}
+
+function toggleShow(){
+    $("#manageContainer").toggle();
+    $("#canvasHolder").toggle();
+
+
 }
 
 function getNodeString(){
