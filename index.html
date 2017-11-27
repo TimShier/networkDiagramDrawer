@@ -491,6 +491,7 @@ function updateGraph(){
         // draw the label by default... ignoring threshold.
         n.forceLabel = true;
         n.active = true; 
+        n.labelThreshold = 0;
     });
     s.refresh();
     s.graph.edges().forEach(function(e) {
@@ -498,7 +499,7 @@ function updateGraph(){
     });
         
     s.refresh();
-    s.draw();
+    
 
 // When a node is clicked, we check for each node
 // if it is a neighbor of the clicked one. If not,
