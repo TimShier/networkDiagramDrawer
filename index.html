@@ -479,6 +479,7 @@ function updateGraph(){
         graph: g,
         container: 'graph-container'
     });
+        
 
 
 
@@ -487,6 +488,8 @@ function updateGraph(){
 // nodes and edges, like this:
     s.graph.nodes().forEach(function(n) {
         n.originalColor = n.color;
+        // draw the label by default... ignoring threshold.
+        n.forceLabel = true;
     });
     s.graph.edges().forEach(function(e) {
         e.originalColor = e.color;
